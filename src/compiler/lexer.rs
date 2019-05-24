@@ -21,7 +21,7 @@ impl LexerError {
         LexerError {
             error_type,
             line,
-            column
+            column,
         }
     }
 }
@@ -58,7 +58,7 @@ pub fn tokenize_file(filename: String) -> Result<Vec<Token>, Vec<LexerError>> {
         Err(vec![LexerError::new(
             LexerErrorType::FileNotFound(name_copy),
             0,
-            0
+            0,
         )])
     }
 }
@@ -361,11 +361,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                 current_line,
                 current_column,
             )),
-            ',' => tokens.push(Token::new(
-                TokenType::Comma,
-                current_line,
-                current_column,
-            )),
+            ',' => tokens.push(Token::new(TokenType::Comma, current_line, current_column)),
             '\n' => {
                 current_line += 1;
                 current_column = 0;
@@ -600,7 +596,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -612,7 +608,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -624,7 +620,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -636,7 +632,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -648,7 +644,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -660,7 +656,7 @@ fn parse_number(
                 res = Err(LexerError::new(
                     LexerErrorType::IllegalNumber(string),
                     *line,
-                    start_column
+                    start_column,
                 ));
             }
         }
@@ -674,7 +670,7 @@ fn parse_number(
                         res = Err(LexerError::new(
                             LexerErrorType::IllegalNumber(string),
                             *line,
-                            start_column
+                            start_column,
                         ));
                     }
                 }
@@ -686,7 +682,7 @@ fn parse_number(
                         res = Err(LexerError::new(
                             LexerErrorType::IllegalNumber(string),
                             *line,
-                            start_column
+                            start_column,
                         ));
                     }
                 }
@@ -694,7 +690,7 @@ fn parse_number(
                     res = Err(LexerError::new(
                         LexerErrorType::IllegalChar('?'),
                         *line,
-                        *column
+                        *column,
                     ));
                 }
             }

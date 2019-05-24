@@ -1,3 +1,8 @@
-int main(int var){
-    return 10.0;
+struct Test {
+    int abc,
+    float qwer
+}
+
+int tesdst[,,,] {
+
 }
