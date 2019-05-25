@@ -356,6 +356,11 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     ));
                 }
             }
+            ':' => tokens.push(Token::new(
+                TokenType::Colon,
+                current_line,
+                current_column,
+            )),
             ';' => tokens.push(Token::new(
                 TokenType::Semicolon,
                 current_line,
@@ -498,6 +503,7 @@ fn get_keyword_map() -> HashMap<String, TokenType> {
     keywords.insert("long".to_string(), TokenType::TypeName(DataType::Long));
     keywords.insert("float".to_string(), TokenType::TypeName(DataType::Float));
     keywords.insert("double".to_string(), TokenType::TypeName(DataType::Double));
+    keywords.insert("bool".to_string(), TokenType::TypeName(DataType::Bool));
     keywords.insert("String".to_string(), TokenType::TypeName(DataType::Zstring));
     keywords.insert("return".to_string(), TokenType::Return);
     keywords.insert("if".to_string(), TokenType::If);

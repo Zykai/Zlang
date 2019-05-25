@@ -15,12 +15,22 @@ fn main() {
         }
         return;
     };
+    println!("\nLexer finished without error");
     let tokens = tokens.unwrap();
+    //println!("{:#?}", tokens);
     //let expr_tree = compiler::parser::parse_expression(tokens);
     //println!("{:#?}", expr_tree);
-    //let parser = compiler::parser::Parser::new(tokens);
+    let parser = compiler::parser::Parser::new(&tokens);
     //let program = parser.parse_program();
-    //println!("{:#?}", program);
-
-    println!("\nLexer finished without error");
+    let program = parser.parse_program();
+    match program {
+        Ok(_p) => {
+            println!("No Erros in parsing stage");
+        },
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+    //parser.parse_expression();
 }

@@ -1,13 +1,18 @@
 use std::fmt::Debug;
-use super::expression_trees::Expression;
-use super::super::{DataType, Token};
+use super::expression_trees::{Expression, AssignExpression};
+use super::super::{DataType, Token, TokenType};
 
 pub trait Statement {}
-pub trait DeclAssign {}
 
-pub struct DeclStmt<'a>{
+pub enum DeclAssign {
+    Decl(Box<Statement>),
+    Assign(AssignExpression)
+}
+
+pub struct DeclStmt {
     data_type: DataType,
-    name: &'a String,
+    name: String,
+    assign: Option<Box<Expression>>,
 }
 
 pub struct ExprStmt{
@@ -19,7 +24,7 @@ pub struct GroupStmt{
 }
 
 pub struct ForStmt{
-    pub init: Option<Box<DeclAssign>>,
+    pub init: Option<DeclAssign>,
     pub check:  Option<Box<Expression>>,
     pub update:  Option<Box<Expression>>,
     pub body: Box<Statement>,
@@ -30,22 +35,34 @@ pub struct WhileStmt {
     pub body: Box<Statement>,
 }
 
-pub struct JmpStatement<'a> {
-    pub cmd: &'a Token,
+pub struct IfStmt {
+    pub condition: Box<Expression>,
+    pub body: Box<Statement>,
+    pub else_body: Option<Box<Statement>>,
+}
+
+pub struct JmpStatement {
+    pub cmd: TokenType,
     pub expr: Option<Box<Expression>>,
 }
 
-impl <'a> Statement for DeclStmt<'a> {}
+pub struct DeleteStmt {
+    pub reference: String,
+}
+
+impl Statement for DeclStmt {}
 impl Statement for ExprStmt {}
 impl Statement for GroupStmt {}
 impl Statement for ForStmt {}
 impl Statement for WhileStmt {}
-impl <'a> Statement for JmpStatement<'a> {}
+impl Statement for IfStmt {}
+impl Statement for JmpStatement {}
+impl Statement for DeleteStmt {}
 
-impl <'a> DeclStmt <'a>{
-    pub fn new(data_type: DataType, name: &'a String) -> DeclStmt{
+impl DeclStmt {
+    pub fn new(data_type: DataType, name: String, assign: Option<Box<Expression>>) -> DeclStmt{
         DeclStmt{
-            data_type, name
+            data_type, name, assign
         }
     }
 }
@@ -70,7 +87,7 @@ impl GroupStmt{
 }
 
 impl ForStmt{
-    pub fn new(init: Option<Box<DeclAssign>>, check: Option<Box<Expression>>, update: Option<Box<Expression>>, body: Box<ExprStmt>) -> ForStmt {
+    pub fn new(init: Option<DeclAssign>, check: Option<Box<Expression>>, update: Option<Box<Expression>>, body: Box<Statement>) -> ForStmt {
         ForStmt{
             init, check, update, body
         }
@@ -85,10 +102,24 @@ impl WhileStmt{
     }
 }
 
-impl <'a> JmpStatement <'a>{
-    pub fn new(cmd: &'a Token, expr: Option<Box<Expression>>) -> JmpStatement{
+impl IfStmt {
+    pub fn new(condition: Box<Expression>, body: Box<Statement>, else_body: Option<Box<Statement>>) -> IfStmt {
+        IfStmt{
+            condition, body, else_body
+        }
+    }
+}
+
+impl JmpStatement {
+    pub fn new(cmd: TokenType, expr: Option<Box<Expression>>) -> JmpStatement{
         JmpStatement{
             cmd, expr
         }
+    }
+}
+
+impl DeleteStmt {
+    pub fn new(reference: String) -> DeleteStmt {
+        DeleteStmt {reference}
     }
 }

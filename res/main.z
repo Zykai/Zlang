@@ -1,8 +1,7 @@
-struct Test {
-    int abc,
-    float qwer
-}
-
-int tesdst[,,,] {
-
+Test main () {
+    Test i = 1;
+    return new Test {
+        field1: 3,
+        field2: true
+    };;
 }

@@ -14,6 +14,7 @@ pub enum DataType {
     Long,
     Float,
     Double,
+    Bool,
     Zstring,
 }
 
@@ -42,6 +43,7 @@ impl DataType{
             DataType::Long => 8,
             DataType::Float => 4,
             DataType::Double => 8,
+            DataType::Bool => 1,
             DataType::Zstring => 8,
         }
     }
@@ -100,6 +102,7 @@ pub enum TokenType{
     Else,
     While,
     For,
+    Colon,
     Semicolon,
     Comma,
     MemberAccess,
@@ -126,6 +129,7 @@ impl PartialEq for TokenType {
              (TokenType::Else, TokenType::Else) => true,
              (TokenType::While, TokenType::While) => true,
              (TokenType::For, TokenType::For) => true,
+             (TokenType::Colon, TokenType::Colon) => true,
              (TokenType::Semicolon, TokenType::Semicolon) => true,
              (TokenType::Comma, TokenType::Comma) => true,
              (TokenType::MemberAccess, TokenType::MemberAccess) => true,
