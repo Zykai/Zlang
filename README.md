@@ -5,7 +5,7 @@ Improved reimplementation of [https://github.com/Zykai/Compiler](https://github.
 
 ## Progress
 - [x] Lexer
-- [ ] Parser
+- [x] Parser
 - [ ] Semantic Analyzer
 - [ ] Byte-Code Generator
 - [ ] Virtual Machine
