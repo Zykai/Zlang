@@ -1,12 +1,12 @@
-use std::fmt::Debug;
-use super::expression_trees::{Expression, AssignExpression};
 use super::super::{DataType, Token, TokenType};
+use super::expression_trees::{AssignExpression, Expression};
+use std::fmt::Debug;
 
 pub trait Statement {}
 
 pub enum DeclAssign {
     Decl(Box<Statement>),
-    Assign(AssignExpression)
+    Assign(AssignExpression),
 }
 
 pub struct DeclStmt {
@@ -15,18 +15,18 @@ pub struct DeclStmt {
     assign: Option<Box<Expression>>,
 }
 
-pub struct ExprStmt{
+pub struct ExprStmt {
     pub expr: Box<Expression>,
 }
 
-pub struct GroupStmt{
+pub struct GroupStmt {
     pub stmts: Vec<Box<Statement>>,
 }
 
-pub struct ForStmt{
+pub struct ForStmt {
     pub init: Option<DeclAssign>,
-    pub check:  Option<Box<Expression>>,
-    pub update:  Option<Box<Expression>>,
+    pub check: Option<Box<Expression>>,
+    pub update: Option<Box<Expression>>,
     pub body: Box<Statement>,
 }
 
@@ -60,66 +60,52 @@ impl Statement for JmpStatement {}
 impl Statement for DeleteStmt {}
 
 impl DeclStmt {
-    pub fn new(data_type: DataType, name: String, assign: Option<Box<Expression>>) -> DeclStmt{
-        DeclStmt{
-            data_type, name, assign
-        }
+    pub fn new(data_type: DataType, name: String, assign: Option<Box<Expression>>) -> DeclStmt {
+        DeclStmt { data_type, name, assign }
     }
 }
 
-impl ExprStmt{
-    pub fn new(expr: Box<Expression>) -> ExprStmt{
-        ExprStmt{
-            expr
-        }
+impl ExprStmt {
+    pub fn new(expr: Box<Expression>) -> ExprStmt {
+        ExprStmt { expr }
     }
 }
 
-impl GroupStmt{
+impl GroupStmt {
     pub fn new() -> GroupStmt {
-        GroupStmt{
-            stmts: Vec::new()
-        }
+        GroupStmt { stmts: Vec::new() }
     }
-    pub fn addStmt(&mut self, s: Box<Statement>){
+    pub fn add_stmt(&mut self, s: Box<Statement>) {
         self.stmts.push(s);
     }
 }
 
-impl ForStmt{
+impl ForStmt {
     pub fn new(init: Option<DeclAssign>, check: Option<Box<Expression>>, update: Option<Box<Expression>>, body: Box<Statement>) -> ForStmt {
-        ForStmt{
-            init, check, update, body
-        }
+        ForStmt { init, check, update, body }
     }
 }
 
-impl WhileStmt{
-    pub fn new(check: Box<Expression>, body: Box<Statement>) -> WhileStmt{
-        WhileStmt{
-            check, body
-        }
+impl WhileStmt {
+    pub fn new(check: Box<Expression>, body: Box<Statement>) -> WhileStmt {
+        WhileStmt { check, body }
     }
 }
 
 impl IfStmt {
     pub fn new(condition: Box<Expression>, body: Box<Statement>, else_body: Option<Box<Statement>>) -> IfStmt {
-        IfStmt{
-            condition, body, else_body
-        }
+        IfStmt { condition, body, else_body }
     }
 }
 
 impl JmpStatement {
-    pub fn new(cmd: TokenType, expr: Option<Box<Expression>>) -> JmpStatement{
-        JmpStatement{
-            cmd, expr
-        }
+    pub fn new(cmd: TokenType, expr: Option<Box<Expression>>) -> JmpStatement {
+        JmpStatement { cmd, expr }
     }
 }
 
 impl DeleteStmt {
     pub fn new(reference: String) -> DeleteStmt {
-        DeleteStmt {reference}
+        DeleteStmt { reference }
     }
 }

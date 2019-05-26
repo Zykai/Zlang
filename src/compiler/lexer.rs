@@ -1,5 +1,5 @@
 use super::data_structures::{DataType, LiteralType, OperatorType, Token, TokenType};
-use std::collections::HashMap;
+use std::collections::{HashMap, LinkedList};
 use std::error::Error;
 
 #[derive(Debug)]
@@ -49,7 +49,7 @@ impl Error for LexerError {
 }
 
 // Transforms a source file into an vector of tokens
-pub fn tokenize_file(filename: String) -> Result<Vec<Token>, Vec<LexerError>> {
+pub fn tokenize_file(filename: String) -> Result<LinkedList<Token>, Vec<LexerError>> {
     let name_copy = filename.clone();
     let source_code = std::fs::read_to_string(filename);
     if source_code.is_ok() {
@@ -64,8 +64,8 @@ pub fn tokenize_file(filename: String) -> Result<Vec<Token>, Vec<LexerError>> {
 }
 
 // Transforms a source string into an vector of tokens
-pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError>> {
-    let mut tokens: Vec<Token> = Vec::new();
+pub fn tokenize_string(source_code: String) -> Result<LinkedList<Token>, Vec<LexerError>> {
+    let mut tokens: LinkedList<Token> = LinkedList::new();
     let mut current_line: u32 = 1;
     let mut current_column: u32 = 1;
     let mut current_char_iter = source_code.chars().peekable();
@@ -84,7 +84,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("* is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::PlusAssign),
                         current_line,
                         current_column,
@@ -93,7 +93,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     current_column = current_column + 1;
                     count = count + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::Plus),
                         current_line,
                         current_column,
@@ -106,7 +106,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("- is followed by 'None', should never happen")
                 {
                     '>' => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::MemberAccess,
                             current_line,
                             current_column,
@@ -116,7 +116,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                         current_column = current_column + 1;
                     }
                     '=' => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::Operator(OperatorType::MinusAssign),
                             current_line,
                             current_column,
@@ -126,7 +126,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                         current_column = current_column + 1;
                     }
                     _ => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::Operator(OperatorType::Minus),
                             current_line,
                             current_column,
@@ -140,7 +140,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("* is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::MultiplyAssign),
                         current_line,
                         current_column,
@@ -149,7 +149,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::Multiply),
                         current_line,
                         current_column,
@@ -184,7 +184,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                         );
                     }
                     '=' => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::Operator(OperatorType::DivideAssign),
                             current_line,
                             current_column,
@@ -194,7 +194,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                         current_column = current_column + 1;
                     }
                     _ => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::Operator(OperatorType::Divide),
                             current_line,
                             current_column,
@@ -208,7 +208,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("= is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpEqual),
                         current_line,
                         current_column,
@@ -217,7 +217,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::Assign),
                         current_line,
                         current_column,
@@ -230,7 +230,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("> is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpLessEqual),
                         current_line,
                         current_column,
@@ -239,7 +239,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpLess),
                         current_line,
                         current_column,
@@ -252,7 +252,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("> is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpGreaterEqual),
                         current_line,
                         current_column,
@@ -261,7 +261,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpGreater),
                         current_line,
                         current_column,
@@ -274,7 +274,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("! is followed by 'None', should never happen")
                     == '='
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::CmpNotEqual),
                         current_line,
                         current_column,
@@ -283,7 +283,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::Negate),
                         current_line,
                         current_column,
@@ -296,7 +296,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("!&is followed by 'None', should never happen")
                     == '&'
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::LogAnd),
                         current_line,
                         current_column,
@@ -305,7 +305,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::BitAnd),
                         current_line,
                         current_column,
@@ -318,7 +318,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("| is followed by 'None', should never happen")
                     == '|'
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::LogOr),
                         current_line,
                         current_column,
@@ -327,7 +327,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::BitOr),
                         current_line,
                         current_column,
@@ -340,7 +340,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     .expect("^ is followed by 'None', should never happen")
                     == '^'
                 {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::LogXor),
                         current_line,
                         current_column,
@@ -349,54 +349,50 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     count = count + 1;
                     current_column = current_column + 1;
                 } else {
-                    tokens.push(Token::new(
+                    tokens.push_back(Token::new(
                         TokenType::Operator(OperatorType::BitXor),
                         current_line,
                         current_column,
                     ));
                 }
             }
-            ':' => tokens.push(Token::new(
-                TokenType::Colon,
-                current_line,
-                current_column,
-            )),
-            ';' => tokens.push(Token::new(
+            ':' => tokens.push_back(Token::new(TokenType::Colon, current_line, current_column)),
+            ';' => tokens.push_back(Token::new(
                 TokenType::Semicolon,
                 current_line,
                 current_column,
             )),
-            ',' => tokens.push(Token::new(TokenType::Comma, current_line, current_column)),
+            ',' => tokens.push_back(Token::new(TokenType::Comma, current_line, current_column)),
             '\n' => {
                 current_line += 1;
                 current_column = 0;
             }
-            '(' => tokens.push(Token::new(
+            '(' => tokens.push_back(Token::new(
                 TokenType::ParentheseOpen,
                 current_line,
                 current_column,
             )),
-            ')' => tokens.push(Token::new(
+            ')' => tokens.push_back(Token::new(
                 TokenType::ParentheseClose,
                 current_line,
                 current_column,
             )),
-            '{' => tokens.push(Token::new(
+            '{' => tokens.push_back(Token::new(
                 TokenType::CurlyOpen,
                 current_line,
                 current_column,
             )),
-            '}' => tokens.push(Token::new(
+            '}' => tokens.push_back(Token::new(
                 TokenType::CurlyClose,
                 current_line,
                 current_column,
             )),
-            '[' => tokens.push(Token::new(
+            '[' => tokens.push_back(Token::new(
                 TokenType::SquareOpen,
                 current_line,
                 current_column,
             )),
-            ']' => tokens.push(Token::new(
+            ']' => tokens.push_back(Token::new(
                 TokenType::SquareClose,
                 current_line,
                 current_column,
@@ -412,7 +408,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                 );
                 match number {
                     Ok(t) => {
-                        tokens.push(Token::new(
+                        tokens.push_back(Token::new(
                             TokenType::ValueLiteral(t),
                             current_line,
                             start_column,
@@ -437,10 +433,10 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     let token_type = keywords.get(&token);
                     match token_type {
                         Some(i) => {
-                            tokens.push(Token::new(i.clone(), current_line, start_column));
+                            tokens.push_back(Token::new(i.clone(), current_line, start_column));
                         }
                         None => {
-                            tokens.push(Token::new(
+                            tokens.push_back(Token::new(
                                 TokenType::Identifier(token),
                                 current_line,
                                 start_column,
@@ -460,7 +456,7 @@ pub fn tokenize_string(source_code: String) -> Result<Vec<Token>, Vec<LexerError
                     );
                     match number {
                         Ok(t) => {
-                            tokens.push(Token::new(
+                            tokens.push_back(Token::new(
                                 TokenType::ValueLiteral(t),
                                 current_line,
                                 start_column,

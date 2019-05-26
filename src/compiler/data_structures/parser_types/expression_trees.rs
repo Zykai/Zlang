@@ -1,6 +1,6 @@
-use super::super::{LiteralType, OperatorType, DataType};
-use std::fmt::Debug;
+use super::super::{DataType, LiteralType, OperatorType};
 use std::collections::HashMap;
+use std::fmt::Debug;
 
 pub trait Expression: Debug {
     fn get_type(&self) -> ExpressionType {
@@ -8,11 +8,11 @@ pub trait Expression: Debug {
     }
 }
 
-pub enum ExpressionType{
+pub enum ExpressionType {
     Generic,
     Variable,
     Value,
-    Assign
+    Assign,
 }
 
 #[derive(Debug)]
@@ -23,8 +23,16 @@ pub struct AssignExpression {
 }
 
 impl AssignExpression {
-    pub fn new(left: Box<Expression>, right: Box<Expression>, operator: OperatorType) -> AssignExpression {
-        AssignExpression {left, right, operator}
+    pub fn new(
+        left: Box<Expression>,
+        right: Box<Expression>,
+        operator: OperatorType,
+    ) -> AssignExpression {
+        AssignExpression {
+            left,
+            right,
+            operator,
+        }
     }
 }
 
@@ -100,7 +108,7 @@ impl BinaryExpression {
 
 impl VariableExpr {
     pub fn new(name: String, dimensions: Option<Vec<Box<Expression>>>) -> VariableExpr {
-        VariableExpr{name, dimensions}
+        VariableExpr { name, dimensions }
     }
 }
 
@@ -112,18 +120,27 @@ impl ValueExpression {
 
 impl NewExpr {
     pub fn new(type_name: String, parameters: HashMap<String, Box<Expression>>) -> NewExpr {
-        NewExpr {type_name, parameters}
+        NewExpr {
+            type_name,
+            parameters,
+        }
     }
 }
 
 impl CreateArrayExpr {
     pub fn new(array_type: DataType, dimensions: Vec<Box<Expression>>) -> CreateArrayExpr {
-        CreateArrayExpr {array_type, dimensions}
+        CreateArrayExpr {
+            array_type,
+            dimensions,
+        }
     }
 }
 
 impl FunctionExpr {
     pub fn new(function_name: String, parameters: Vec<Box<Expression>>) -> FunctionExpr {
-        FunctionExpr{function_name, parameters}
+        FunctionExpr {
+            function_name,
+            parameters,
+        }
     }
 }

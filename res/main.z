@@ -1,7 +1,14 @@
+struct Test {
+    int x,
+    int c,
+    Test t,
+}
+
 Test main () {
-    Test i = 1;
-    return new Test {
-        field1: 3,
-        field2: true
-    };;
+    Tree myTree = new Tree {
+        left: 1,
+        right: 5,
+        value: 3,
+    };
+    int x = 2;
 }
