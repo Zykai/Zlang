@@ -12,9 +12,17 @@ fn main() {
         }
         return;
     };
+    println!("\nLexer finished without error");
     let tokens = tokens.unwrap();
-    for i in tokens {
-        println!("{:?}", i);
+    let mut parser = compiler::parser::Parser::new(tokens);
+    let program = parser.parse_program();
+    match program {
+        Ok(_p) => {
+            println!("No Erros in parsing stage");
+        }
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
     }
-    println!("Lexer finished without error");
 }
