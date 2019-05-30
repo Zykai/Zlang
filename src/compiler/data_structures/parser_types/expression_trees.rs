@@ -2,17 +2,15 @@ use super::super::{DataType, LiteralType, OperatorType};
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-pub trait Expression: Debug {
-    fn get_type(&self) -> ExpressionType {
-        ExpressionType::Generic
-    }
-}
-
-pub enum ExpressionType {
-    Generic,
-    Variable,
-    Value,
-    Assign,
+#[derive(Debug)]
+pub enum Expression {
+    Assign(AssignExpression),
+    Binary(BinaryExpression),
+    CreateArray(CreateArrayExpr),
+    Function(FunctionExpr),
+    New(NewExpr),
+    Variable(VariableExpr),
+    Value(ValueExpression),
 }
 
 #[derive(Debug)]
@@ -70,26 +68,6 @@ pub struct CreateArrayExpr {
 pub struct FunctionExpr {
     pub function_name: String,
     pub parameters: Vec<Box<Expression>>,
-}
-
-impl Expression for BinaryExpression {}
-impl Expression for NewExpr {}
-impl Expression for CreateArrayExpr {}
-impl Expression for FunctionExpr {}
-impl Expression for AssignExpression {
-    fn get_type(&self) -> ExpressionType {
-        ExpressionType::Assign
-    }
-}
-impl Expression for VariableExpr {
-    fn get_type(&self) -> ExpressionType {
-        ExpressionType::Variable
-    }
-}
-impl Expression for ValueExpression {
-    fn get_type(&self) -> ExpressionType {
-        ExpressionType::Value
-    }
 }
 
 impl BinaryExpression {

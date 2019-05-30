@@ -2,7 +2,16 @@ use super::super::{DataType, Token, TokenType};
 use super::expression_trees::{AssignExpression, Expression};
 use std::fmt::Debug;
 
-pub trait Statement {}
+pub enum Statement {
+    Declare(DeclStmt),
+    Expr(ExprStmt),
+    Group(GroupStmt),
+    For(ForStmt),
+    While(WhileStmt),
+    If(IfStmt),
+    Jmp(JmpStatement),
+    Delete(DeleteStmt),
+}
 
 pub struct DeclStmt {
     data_type: DataType,
@@ -44,15 +53,6 @@ pub struct JmpStatement {
 pub struct DeleteStmt {
     pub reference: String,
 }
-
-impl Statement for DeclStmt {}
-impl Statement for ExprStmt {}
-impl Statement for GroupStmt {}
-impl Statement for ForStmt {}
-impl Statement for WhileStmt {}
-impl Statement for IfStmt {}
-impl Statement for JmpStatement {}
-impl Statement for DeleteStmt {}
 
 impl DeclStmt {
     pub fn new(data_type: DataType, name: String, assign: Option<Box<Expression>>) -> DeclStmt {

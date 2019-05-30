@@ -281,14 +281,14 @@ fn parse_for_stmt(&mut self) -> ParserResult<Box<Statement>> {
         update = Some(self.parse_expression()?);
     }
     body = self.parse_group_stmt()?;
-    Ok(Box::new(ForStmt::new(declare, check, update, body)))
+    Ok(Box::new(Statement::For(ForStmt::new(declare, check, update, body))))
 }
 
 fn parse_while_stmt(&mut self) -> ParserResult<Box<Statement>> {
     self.current_token()?;
     let expr = self.log_expression()?;
     let body = self.parse_group_stmt()?;
-    Ok(Box::new(WhileStmt::new(expr, body)))
+    Ok(Box::new(Statement::While(WhileStmt::new(expr, body))))
 }
 
 fn parse_if_stmt(&mut self) -> ParserResult<Box<Statement>> {
@@ -302,7 +302,7 @@ fn parse_if_stmt(&mut self) -> ParserResult<Box<Statement>> {
     } else {
         else_body = None;
     }
-    Ok(Box::new(IfStmt::new(expr, body, else_body)))
+    Ok(Box::new(Statement::If(IfStmt::new(expr, body, else_body))))
 }
 
 // Parses a declaration, needs to look ahead to prevent consuming part of an assign-expression
@@ -318,19 +318,19 @@ fn parse_decl_stmt(&mut self) -> ParserResult<Box<Statement>> {
         assign = Some(self.parse_expression()?);
         self.parse_semicolon()?;
     }
-    Ok(Box::new(DeclStmt::new(var.data_type, var.name, assign)))
+    Ok(Box::new(Statement::Declare(DeclStmt::new(var.data_type, var.name, assign))))
 }
 
 fn parse_return_stmt(&mut self) -> ParserResult<Box<Statement>> {
     let token_type = self.current_token()?.token_type;
     if let TokenType::Semicolon = self.peek_current()?.token_type {
         self.current_token()?;
-        Ok(Box::new(JmpStatement::new(token_type, None)))
+        Ok(Box::new(Statement::Jmp(JmpStatement::new(token_type, None))))
     } else {
         let expr = self.parse_expression()?;
         if let TokenType::Semicolon = self.peek_current()?.token_type{
             self.current_token()?;
-            Ok(Box::new(JmpStatement::new(token_type, Some(expr))))
+            Ok(Box::new(Statement::Jmp(JmpStatement::new(token_type, Some(expr)))))
         } else {
             Err(ParserError::ExpcectedError(TokenType::Semicolon, self.current_token()?))
         }
@@ -340,7 +340,7 @@ fn parse_return_stmt(&mut self) -> ParserResult<Box<Statement>> {
 fn parse_expr_stmt(&mut self) -> ParserResult<Box<Statement>> {
     let expr = self.parse_expression()?;
     self.parse_semicolon()?;
-    Ok(Box::new(ExprStmt::new(expr)))
+    Ok(Box::new(Statement::Expr(ExprStmt::new(expr))))
 }
 
 fn parse_group_stmt(&mut self) -> ParserResult<Box<Statement>> {
@@ -353,22 +353,22 @@ fn parse_group_stmt(&mut self) -> ParserResult<Box<Statement>> {
         group_stmt.add_stmt(self.parse_statement()?);
     }
     self.parser_expect(TokenType::CurlyClose)?;
-    Ok(Box::new(group_stmt))
+    Ok(Box::new(Statement::Group(group_stmt)))
 }
 
 fn parse_delete_smt(&mut self) -> ParserResult<Box<Statement>> {
     self.current_token()?;
     let id = self.current_token()?;
     if let TokenType::Identifier(s) = id.token_type {
-        let delete_stmt = Box::new(DeleteStmt::new(s));
+        let delete_stmt = DeleteStmt::new(s);
         self.parse_semicolon()?;
-        Ok(delete_stmt)
+        Ok(Box::new(Statement::Delete(delete_stmt)))
     } else {
         Err(ParserError::ExpcectedError(TokenType::Identifier("".to_string()), id))
     }
 }
 
-pub fn parse_expression(&mut self) -> ParserResult<Box<dyn Expression>> {
+pub fn parse_expression(&mut self) -> ParserResult<Box<Expression>> {
     self.assign_expression()
 }
 
@@ -378,7 +378,7 @@ fn assign_expression(&mut self) -> ParserResult<Box<Expression>> {
     let first = self.current_token()?;
     if let TokenType::Operator(o) = first.token_type {
         let right = self.log_expression()?;
-        Ok(Box::new(AssignExpression::new(left, right, o)))
+        Ok(Box::new(Expression::Assign(AssignExpression::new(left, right, o))))
     } else {
         // Push token back, as it hat not been used
         self.push_front(first);
@@ -399,7 +399,7 @@ fn log_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.bitwise_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -417,7 +417,7 @@ fn bitwise_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.equal_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -434,7 +434,7 @@ fn equal_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.compare_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -455,7 +455,7 @@ fn compare_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.addition_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -472,7 +472,7 @@ fn addition_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.multiplication_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -489,7 +489,7 @@ fn multiplication_expression(&mut self) -> ParserResult<Box<Expression>> {
         }
         self.current_token()?;
         let next_expression = self.value_expression()?;
-        current = Box::new(BinaryExpression::new(current, next_expression, op_type));
+        current = Box::new(Expression::Binary(BinaryExpression::new(current, next_expression, op_type)));
     }
     Ok(current)
 }
@@ -501,7 +501,7 @@ fn value_expression(&mut self) -> ParserResult<Box<Expression>> {
             self.identifier_expression(s)
         },
         TokenType::ValueLiteral(v) => {
-            Ok(Box::new(ValueExpression::new(v)))
+            Ok(Box::new(Expression::Value(ValueExpression::new(v))))
         },
         TokenType::ParentheseOpen => {
             let res = self.log_expression()?;
@@ -535,7 +535,7 @@ fn identifier_expression(&mut self, id: String) -> ParserResult<Box<Expression>>
                 return Err(ParserError::ExpcectedError(TokenType::SquareClose, self.current_token()?));
             }
             let dimensions = Some(dimensions);
-            Ok(Box::new(VariableExpr::new(id, dimensions)))
+            Ok(Box::new(Expression::Variable(VariableExpr::new(id, dimensions))))
         },
         TokenType::ParentheseOpen => {
             let mut parameters = Vec::new();
@@ -549,11 +549,11 @@ fn identifier_expression(&mut self, id: String) -> ParserResult<Box<Expression>>
             } else {
                 self.current_token()?;
             }
-            Ok(Box::new(FunctionExpr::new(id, parameters)))
+            Ok(Box::new(Expression::Function(FunctionExpr::new(id, parameters))))
         },
         _ => {
             self.push_front(current);
-            Ok(Box::new(VariableExpr::new(id, None)))
+            Ok(Box::new(Expression::Variable(VariableExpr::new(id, None))))
         }
     }
 }
@@ -598,7 +598,7 @@ fn parse_custom_type(&mut self, type_name: String) -> ParserResult<Box<Expressio
                         }
                     }
                     self.parser_expect(TokenType::CurlyClose)?;
-                    Ok(Box::new(NewExpr::new(type_name, parameters)))
+                    Ok(Box::new(Expression::New(NewExpr::new(type_name, parameters))))
                 },
                 TokenType::SquareOpen => {
                     let data_type = DataType::Reference(type_name);
@@ -623,7 +623,7 @@ fn parse_array(&mut self, data_type: DataType) -> ParserResult<Box<Expression>> 
         dimensions.push(self.log_expression()?);
         dimension_count = dimension_count + 1;
     }
-    Ok(Box::new(CreateArrayExpr::new(data_type, dimensions)))
+    Ok(Box::new(Expression::CreateArray(CreateArrayExpr::new(data_type, dimensions))))
 }
 
 // Decides wether to parse a declaration or an assignment, when only looking at the first token is not enough e.g: MyDataType name = ...
