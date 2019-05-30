@@ -4,11 +4,6 @@ use std::fmt::Debug;
 
 pub trait Statement {}
 
-pub enum DeclAssign {
-    Decl(Box<Statement>),
-    Assign(AssignExpression),
-}
-
 pub struct DeclStmt {
     data_type: DataType,
     name: String,
@@ -24,7 +19,7 @@ pub struct GroupStmt {
 }
 
 pub struct ForStmt {
-    pub init: Option<DeclAssign>,
+    pub init: Option<Box<Statement>>,
     pub check: Option<Box<Expression>>,
     pub update: Option<Box<Expression>>,
     pub body: Box<Statement>,
@@ -81,7 +76,7 @@ impl GroupStmt {
 }
 
 impl ForStmt {
-    pub fn new(init: Option<DeclAssign>, check: Option<Box<Expression>>, update: Option<Box<Expression>>, body: Box<Statement>) -> ForStmt {
+    pub fn new(init: Option<Box<Statement>>, check: Option<Box<Expression>>, update: Option<Box<Expression>>, body: Box<Statement>) -> ForStmt {
         ForStmt { init, check, update, body }
     }
 }

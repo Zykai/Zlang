@@ -267,7 +267,7 @@ fn parse_for_stmt(&mut self) -> ParserResult<Box<Statement>> {
         declare = None;
         self.current_token()?;
     } else {
-        declare = Some(DeclAssign::Decl(self.parse_decl_stmt()?));
+        declare = Some(self.parse_decl_assign()?);
     }
     if let TokenType::Semicolon = self.peek_current()?.token_type {
         check = None;
@@ -308,12 +308,13 @@ fn parse_if_stmt(&mut self) -> ParserResult<Box<Statement>> {
 // Parses a declaration, needs to look ahead to prevent consuming part of an assign-expression
 fn parse_decl_stmt(&mut self) -> ParserResult<Box<Statement>> {
     let var = self.parse_data_type(true)?;
+    let name = self.current_token()?;
     let assign;
     if let TokenType::Semicolon = self.peek_next()?.token_type {
         assign = None;
         self.current_token()?;
-        //self.current_token()?;
     } else {
+        self.push_front(name);
         assign = Some(self.parse_expression()?);
         self.parse_semicolon()?;
     }
